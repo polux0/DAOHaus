@@ -30,6 +30,7 @@ export const DaoContainer = () => {
     { label: 'Proposals', href: `/molochv3/${daoChain}/${daoId}/proposals` },
     { label: 'Safes', href: `/molochv3/${daoChain}/${daoId}/safes` },
     { label: 'Members', href: `/molochv3/${daoChain}/${daoId}/members` },
+    { label: 'Become a member', href: `/molochv3/${daoChain}/${daoId}/becomeamember`}
   ];
 
   const moreLinks = [
