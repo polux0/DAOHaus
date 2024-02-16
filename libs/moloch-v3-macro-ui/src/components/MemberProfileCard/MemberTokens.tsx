@@ -44,7 +44,7 @@ export const MemberTokens = ({ daoChain, dao, member }: MemberTokensProps) => {
   }, [dao]);
 
   const tableData: TokenTableType[] | null = useMemo(() => {
-    if (dao && member && treasury) {
+    if (dao && member && treasury && treasury.tokenBalances) {
       return treasury.tokenBalances
         .filter((bal) => Number(bal.balance))
         .map((bal) => {
