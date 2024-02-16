@@ -22,15 +22,16 @@ export const SafesList = ({
     daoId,
     graphApiKeys,
   });
-
   if (!dao) return null;
 
   return (
     <>
       {dao.vaults
         .sort((a, b) => Number(b.ragequittable) - Number(a.ragequittable))
-        .map(
-          (vault) =>
+        .map((vault) => {
+          // debugging purposes -> Log the current vault being processed as 'safe'
+          // console.log({ 'safe': vault });
+          return (
             dao &&
             vault && (
               <SafeCard
@@ -41,7 +42,8 @@ export const SafesList = ({
                 key={vault.id}
               />
             )
-        )}
+          );
+        })}
     </>
   );
 };

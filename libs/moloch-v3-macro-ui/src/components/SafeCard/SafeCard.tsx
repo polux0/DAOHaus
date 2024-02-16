@@ -86,7 +86,14 @@ export const SafeCard = ({
               format: 'currencyShort',
             })}
           />
-          <DataIndicator label="Tokens" data={safe.tokenBalances.length} />
+          <DataIndicator
+            label="Tokens"
+            data={
+              safe.tokenBalances
+                ? safe.tokenBalances.length
+                : 'Treasury has no tokens yet'
+            }
+          />
         </DataGrid>
       </SafeOverviewCard>
     </SafeContainer>
