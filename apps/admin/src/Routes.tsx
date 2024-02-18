@@ -11,6 +11,7 @@ import { HomeContainer } from './layout/HomeContainer';
 import { DaoOverview } from './pages/DaoOverview';
 import { Home } from './pages/Home';
 import { Members } from './pages/Members';
+import { BecomeAMember } from './pages/BecomeAMember';
 import { Proposals } from './pages/Proposals';
 import { Safes } from './pages/Safes';
 import { Settings } from './pages/Settings';
@@ -56,6 +57,8 @@ export const Routes = ({
         <Route path="formtest" element={<FormTest />} />
         <Route path="settings/update" element={<UpdateSettings />} />
         <Route path="members/ragequit" element={<RageQuit />} />
+        <Route path="become" element={<BecomeAMember />} />
+        {/* This ^ page needs to be defined yet */}
       </Route>
     </RoutesDom>
   );

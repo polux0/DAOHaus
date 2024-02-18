@@ -1,6 +1,15 @@
 import { Keychain } from './types';
 
 export const CONTRACT_KEYCHAINS: Record<string, Keychain> = {
+  // 0x1 - Ethereum Mainnet
+  // 0x5 - Goerli
+  // 0xaa36a7 - Sepolia
+  // 0x64 - Gnosis
+  // 0x89 - Polygon Mainnet
+  // 0xa - Optimism Mainnet
+  // 0xa4b1 - Arbitrum One
+  // 0x2105 - Base
+
   V3_FACTORY_ADV_TOKEN: {
     '0x1': '0x8a4A9E36106Ee290811B89e06e2faFE913507965',
     '0x5': '0xb0c5c96c3d21c1d58B98a5366dF0Af7AfcD94F95',
@@ -111,4 +120,14 @@ export const CONTRACT_KEYCHAINS: Record<string, Keychain> = {
     '0xa4b1': '0x00000000000DC7F163742Eb4aBEf650037b1f588',
     '0x2105': '0x000000000000aDdB49795b0f9bA5BC298cDda236',
   },
+  MEMBERSHIP_NFT:{
+    '0x1': '0x0',
+    '0x5': '0x1c40628cDa58ABC25101AB7AA1a31d62BbB94C6c',
+    '0xaa36a7': '0x0',
+    '0x64': '0x0',
+    '0x89': '0x0',
+    '0xa': '0x0',
+    '0xa4b1': '0x0',
+    '0x2105': '0x0',
+  }
 };

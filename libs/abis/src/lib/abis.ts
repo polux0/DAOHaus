@@ -13,6 +13,7 @@ import ERC20 from '../abi/erc20a.json';
 import ERC721 from '../abi/erc721.json';
 import VAULT_SUMMONER from '../abi/vaultSummoner.json';
 import GNOSIS_MODULE from '../abi/gnosisModule.json';
+import MEMBERSHIP_NFT from '../abi/MembershipNFT.json';
 
 export const LOCAL_ABI = {
   BAAL,
@@ -30,5 +31,7 @@ export const LOCAL_ABI = {
   ERC20,
   ERC721,
   VAULT_SUMMONER,
+  // added for purposes of RobinHoodDAO
+  MEMBERSHIP_NFT
 };
 export type ContractABIKey = keyof typeof LOCAL_ABI;
