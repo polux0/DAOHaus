@@ -23,6 +23,7 @@ Quick Reference for forms
 PROPOSAL_FORMS KEYS
 - SHARE_SWAP
 - SIGNAL
+- BECOME_A_MEMBER /* added for purposes of RobinHoodDAO, and initial ADD_MEMBER should be removed
 - ISSUE
 - ADD_SHAMAN
 - TRANSFER_ERC20
@@ -791,6 +792,24 @@ export const COMMON_FORMS: Record<string, MolochFormLego> = {
     ],
     submitButtonText: 'Create',
   },
+  // added for purposes of RobinHoodDAO
+  BECOME_A_MEMBER: {
+    id: 'BECOME_A_MEMBER',
+    title: 'Become a member',
+    subtitle: 'Become a member',
+    description: 'Request membership by providing an information and minting an NFT in order to become a legally recognized member of a DAO.',
+    requiredFields: { fullName: true, email: true, phoneNumber: true, gdprConsent: true},
+    // create transacction that will insert necessary data into supabase, and mint an NFT
+    tx: TX.MINT_MEMBERSHIP,
+    // add fields that are required for this operation ( full_name, email_address, phone_number )
+    fields: [
+      FIELD.FULL_NAME,
+      FIELD.E_MAIL,
+      FIELD.PHONE_NUMBER,
+      FIELD.GDPR_CONSENT
+    ],
+    submitButtonText: 'Mint membership',
+  },
 };
 
 export const BASIC_PROPOSAL_FORMS = {
@@ -799,6 +818,7 @@ export const BASIC_PROPOSAL_FORMS = {
   TOKENS_FOR_SHARES: PROPOSAL_FORMS.TOKENS_FOR_SHARES,
   TRANSFER_ERC20: PROPOSAL_FORMS.TRANSFER_ERC20,
   TRANSFER_NETWORK_TOKEN: PROPOSAL_FORMS.TRANSFER_NETWORK_TOKEN,
+  // BECOME_A_MEMBER: PROPOSAL_FORMS.BECOME_A_MEMBER,
 };
 
 export const ADVANCED_PROPOSAL_FORMS = {

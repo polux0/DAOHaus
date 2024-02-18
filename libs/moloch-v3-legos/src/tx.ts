@@ -65,6 +65,15 @@ export const TX: Record<string, TXLego> = {
       { type: 'static', value: MaxUint256 },
     ],
   },
+  // added for purposes of RobinHoodDAO
+  MINT_MEMBERSHIP: {
+    id: 'MINT_MEMBERSHIP',
+    contract: CONTRACT.MEMBERSHIP_NFT,
+    method: 'mint',
+    args: [],
+    disablePoll: true
+  },
+
   ISSUE: buildMultiCallTX({
     id: 'ISSUE',
     JSONDetails: {
@@ -805,5 +814,11 @@ export const ACTION_TX: Record<string, TXLegoBase> = {
     id: 'CANCEL',
     contract: CONTRACT.CURRENT_DAO,
     method: 'cancelProposal',
+  },
+  // added for purposes of RobinHoodDAO
+  MINT_MEMBERSHIP: {
+    id: 'MINT_MEMBERSHIP',
+    contract: CONTRACT.MEMBERSHIP_NFT,
+    method: 'mint',
   },
 };
