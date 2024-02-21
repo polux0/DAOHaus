@@ -793,12 +793,20 @@ export const COMMON_FORMS: Record<string, MolochFormLego> = {
     submitButtonText: 'Create',
   },
   // added for purposes of RobinHoodDAO
+  // add physical address
+  // add proof of address
   BECOME_A_MEMBER: {
     id: 'BECOME_A_MEMBER',
     title: 'Become a member',
     subtitle: 'Become a member',
-    description: 'Request membership by providing an information and minting an NFT in order to become a legally recognized member of a DAO.',
-    requiredFields: { fullName: true, email: true, phoneNumber: true, gdprConsent: true},
+    description:
+      'Request membership by providing an information and minting an NFT in order to become a legally recognized member of a DAO.',
+    requiredFields: {
+      fullName: true,
+      email: true,
+      phoneNumber: true,
+      gdprConsent: true,
+    },
     // create transacction that will insert necessary data into supabase, and mint an NFT
     tx: TX.MINT_MEMBERSHIP,
     // add fields that are required for this operation ( full_name, email_address, phone_number )
@@ -806,7 +814,7 @@ export const COMMON_FORMS: Record<string, MolochFormLego> = {
       FIELD.FULL_NAME,
       FIELD.E_MAIL,
       FIELD.PHONE_NUMBER,
-      FIELD.GDPR_CONSENT
+      FIELD.GDPR_CONSENT,
     ],
     submitButtonText: 'Mint membership',
   },

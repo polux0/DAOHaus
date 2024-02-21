@@ -71,7 +71,15 @@ export const TX: Record<string, TXLego> = {
     contract: CONTRACT.MEMBERSHIP_NFT,
     method: 'mint',
     args: [],
-    disablePoll: true
+    disablePoll: false,
+    customPoll: {
+      test: (result) => {
+        // supabase could be added here
+        console.log('test has happened')
+        // Example test condition: Check if the minting status is 'completed'
+        return result?.status === 'completed';
+      },
+    },
   },
 
   ISSUE: buildMultiCallTX({

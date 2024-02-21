@@ -32,6 +32,6 @@ export const LOCAL_ABI = {
   ERC721,
   VAULT_SUMMONER,
   // added for purposes of RobinHoodDAO
-  MEMBERSHIP_NFT
+  MEMBERSHIP_NFT,
 };
 export type ContractABIKey = keyof typeof LOCAL_ABI;

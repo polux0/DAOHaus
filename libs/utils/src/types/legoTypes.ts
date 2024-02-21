@@ -161,7 +161,7 @@ export type TXLegoBase = {
   disablePoll?: boolean;
   customPoll?: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    fetch: (...args: any) => Promise<any>;
+    fetch?: (...args: any) => Promise<any>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     test: (result?: any) => boolean;
   };
