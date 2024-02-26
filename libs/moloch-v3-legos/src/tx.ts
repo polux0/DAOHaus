@@ -14,6 +14,11 @@ import { MaxUint256 } from '@daohaus/utils';
 import { ProposalTypeIds } from '@daohaus/utils';
 import { CONTRACT } from './contracts';
 
+// added for purposes of RobinHoodDAO
+import { SupabaseUserRepository } from '../kyc/supabaseUserRepository';
+import { UserService } from '../kyc/userService';
+import { Information } from '../kyc/information';
+
 const nestInArray = (arg: ValidArgType | ValidArgType[]): NestedArray => {
   return {
     type: 'nestedArray',
@@ -74,8 +79,24 @@ export const TX: Record<string, TXLego> = {
     disablePoll: false,
     customPoll: {
       test: (result) => {
+        const user: Information = {
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          fullName: 'formValues.fullName',
+          emailAddress: 'formValues.email',
+          phoneNumber: 'formValues.phoneNumber',
+          // techncal debt
+          gdprConsent: true,
+        }
+        const userRepository = new SupabaseUserRepository()
+        const userService = new UserService(userRepository)
+        try {
+              userService.createUser(user);
+        } catch (error) {
+             console.log('Error persisting kyc information');
+        }
         // supabase could be added here
-        console.log('test has happened')
+        console.log('test has happened');
         // Example test condition: Check if the minting status is 'completed'
         return result?.status === 'completed';
       },
