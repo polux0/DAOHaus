@@ -83,6 +83,13 @@ export const executeTx = async (args: {
     console.log('**Transaction Successful**');
     lifeCycleFns?.onTxSuccess?.(receipt, txHash, appState);
 
+    // added for purposes of RobinHoodDAO
+    if (tx.persist && tx.persist.saveInDatabase) {
+      console.log('This is great! logging application state to see if `formValues` could be found here: ', appState);
+      tx.persist.saveInDatabase();
+    }
+  
+
     if (!tx.disablePoll) {
       standardGraphPoll({
         poll: tx?.customPoll?.fetch || pollLastTX,

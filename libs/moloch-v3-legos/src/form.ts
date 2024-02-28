@@ -809,13 +809,20 @@ export const COMMON_FORMS: Record<string, MolochFormLego> = {
     },
     // create transacction that will insert necessary data into supabase, and mint an NFT
     tx: TX.MINT_MEMBERSHIP,
-    // add fields that are required for this operation ( full_name, email_address, phone_number )
+    // add fields that are required for this operation ( full_name, email_address, phone_number, gdpr consent )
     fields: [
       FIELD.FULL_NAME,
       FIELD.E_MAIL,
       FIELD.PHONE_NUMBER,
       FIELD.GDPR_CONSENT,
+      // {
+      //   id: 'name',
+      //   type: 'input',
+      //   label: 'Safe Name',
+      //   placeholder: 'Enter name',
+      // },
     ],
+    
     submitButtonText: 'Mint membership',
   },
 };

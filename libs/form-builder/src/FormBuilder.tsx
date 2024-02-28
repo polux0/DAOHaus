@@ -56,7 +56,10 @@ export const FormBuilder = ({
   const submitDisabled = isLoading || !isSameNetwork;
 
   const handleSubmit = async (formValues: FieldValues) => {
+    console.log('handleSubmit for become a member happened!');
+    console.log('formValues: ', formValues)
     if (form.tx) {
+      console.log('tx: ', form.tx);
       setIsLoading(true);
       setTxHash(null);
       setStatus(StatusMsg.Compile);
@@ -130,6 +133,7 @@ export const FormBuilder = ({
       return executed;
     }
     if (onSubmit) {
+      console.log('onSubmit.formValues: ', formValues);
       return await onSubmit?.(formValues);
     }
     console.error('FormBuilder: onSubmit not implemented');
