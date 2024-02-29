@@ -1,4 +1,3 @@
-
 import { KycRepository } from './kycRepository';
 import initiateSupabase from './supabase';
 import { Kyc } from './kyc';
@@ -19,9 +18,7 @@ export class SupabaseKycRepository implements KycRepository {
   }
 
   async findAll(): Promise<Kyc[]> {
-    const { data: Kyc, error } = await supabase
-      .from('kyc')
-      .select('*');
+    const { data: Kyc, error } = await supabase.from('kyc').select('*');
 
     if (error) throw error;
     return Kyc;
@@ -37,10 +34,7 @@ export class SupabaseKycRepository implements KycRepository {
     return newKyc;
   }
 
-  async update(
-    id: string,
-    userUpdate: Partial<Kyc>
-  ): Promise<Kyc> {
+  async update(id: string, userUpdate: Partial<Kyc>): Promise<Kyc> {
     const { data: updatedKyc, error } = await supabase
       .from('kyc')
       .update(userUpdate)

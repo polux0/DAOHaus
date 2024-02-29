@@ -85,10 +85,9 @@ export const executeTx = async (args: {
 
     // added for purposes of RobinHoodDAO
     if (tx.persist && tx.persist.saveInDatabase) {
-      console.log('This is great! logging application state to see if `formValues` could be found here: ', appState);
-      tx.persist.saveInDatabase();
+      console.log(`From txBuilderUtils, appState.formValues: `, appState.formValues);
+      tx.persist.saveInDatabase(appState.formValues);
     }
-  
 
     if (!tx.disablePoll) {
       standardGraphPoll({

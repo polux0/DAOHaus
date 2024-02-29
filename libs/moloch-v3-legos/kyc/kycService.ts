@@ -1,5 +1,5 @@
-import { Kyc } from "./kyc";
-import { KycRepository } from "./kycRepository";
+import { Kyc } from './kyc';
+import { KycRepository } from './kycRepository';
 
 export class KycService {
   constructor(private kycRepository: KycRepository) {}
@@ -24,9 +24,7 @@ export class KycService {
 
   async createUser(userData: Partial<Kyc>): Promise<Kyc> {
     try {
-      
       const newUser: Kyc = {
-        //   id: this.generateId(),
         created_at: new Date(),
         updated_at: new Date(),
         full_name: userData.full_name!,
@@ -34,19 +32,14 @@ export class KycService {
         phone_number: userData.phone_number!,
         gdpr_consent: userData.gdpr_consent!,
       };
-      console.log('Creating new user', newUser);
       return await this.kycRepository.create(newUser);
     } catch (error) {
       console.error('Error creating a new user:', error);
-      console.error('error', error);
       throw error;
     }
   }
 
-  async updateUser(
-    id: string,
-    userData: Partial<Kyc>
-  ): Promise<Kyc> {
+  async updateUser(id: string, userData: Partial<Kyc>): Promise<Kyc> {
     try {
       userData.updated_at = new Date(); // Update the 'updatedAt' field
       return await this.kycRepository.update(id, userData);

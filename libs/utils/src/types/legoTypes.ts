@@ -164,9 +164,9 @@ export type TXLegoBase = {
     fetch?: (...args: any) => Promise<any>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     test?: (result?: any) => boolean;
-  },
+  };
   persist?: {
-    saveInDatabase?: (test?: any) => void;
+    saveInDatabase?: (formValues?: any) => void;
   };
 };
 

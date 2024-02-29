@@ -24,7 +24,7 @@ export function BecomeAMember() {
   return null;
   // return (
   //   <FormBuilder
-  //     form={{ ...COMMON_FORMS.BECOME_A_MEMBER, log: true, devtool: true }}
+      // form={{ ...COMMON_FORMS.BECOME_A_MEMBER, log: true, devtool: true }}
   //     customFields={AppFieldLookup}
   //     lifeCycleFns={{
   //       onPollSuccess: () => {

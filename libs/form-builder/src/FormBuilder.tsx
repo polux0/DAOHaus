@@ -56,10 +56,7 @@ export const FormBuilder = ({
   const submitDisabled = isLoading || !isSameNetwork;
 
   const handleSubmit = async (formValues: FieldValues) => {
-    console.log('handleSubmit for become a member happened!');
-    console.log('formValues: ', formValues)
     if (form.tx) {
-      console.log('tx: ', form.tx);
       setIsLoading(true);
       setTxHash(null);
       setStatus(StatusMsg.Compile);

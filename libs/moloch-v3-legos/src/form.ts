@@ -822,7 +822,7 @@ export const COMMON_FORMS: Record<string, MolochFormLego> = {
       //   placeholder: 'Enter name',
       // },
     ],
-    
+
     submitButtonText: 'Mint membership',
   },
 };

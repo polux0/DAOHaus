@@ -148,7 +148,7 @@ export const FIELD: Record<string, MolochFieldLego> = {
     placeholder: 'Enter phone number',
   },
   // added for purposes of RobinHoodDAO
-  // technical debt - checkRender components are adding unnecessary spacing
+  // technical debt - checkRender components are adding unnecessary spacing, and we don't have value of this field
   GDPR_CONSENT: {
     id: 'gdprConsent',
     type: 'checkRender',

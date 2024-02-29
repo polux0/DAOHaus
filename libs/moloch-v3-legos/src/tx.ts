@@ -18,6 +18,11 @@ import { CONTRACT } from './contracts';
 import { SupabaseKycRepository } from '../kyc/supabaseKycRepository';
 import { KycService } from '../kyc/kycService';
 import { Kyc } from '../kyc/kyc';
+import { generateKey, encryptData, decryptData, bufferToBase64, base64ToBuffer,} from '../utils/encryption';
+ 
+
+// added for purposes of RobinHoodDAO
+
 
 const nestInArray = (arg: ValidArgType | ValidArgType[]): NestedArray => {
   return {
@@ -76,16 +81,21 @@ export const TX: Record<string, TXLego> = {
     contract: CONTRACT.MEMBERSHIP_NFT,
     method: 'mint',
     args: [],
-    disablePoll: false,
+    disablePoll: true,
     customPoll: {},
     persist: {
-      saveInDatabase: () => {
+      saveInDatabase: async (formValues: any) => {
+        const key: any = await generateKey();
+        const exportedKey = await window.crypto.subtle.exportKey('raw', key);
+        const base64Key = await bufferToBase64(exportedKey);
+        console.log('key to be stored in supabase: ', base64Key);
+
         const user: Kyc = {
           created_at: new Date(),
           updated_at: new Date(),
-          full_name: `formValues.fullName`,
-          email_address: `formValues.email`,
-          phone_number: `formValues.phoneNumber`,
+          full_name: formValues.fullName,
+          email_address: formValues.email,
+          phone_number: formValues.phoneNumber,
           gdpr_consent: true,
         };
         const kycRepository = new SupabaseKycRepository();
@@ -95,12 +105,8 @@ export const TX: Record<string, TXLego> = {
         } catch (error) {
           console.log('Error persisting kyc information');
         }
-        // supabase could be added here
-        console.log('test has happened');
-        // Example test condition: Check if the minting status is 'completed'
-        // return result?.status === 'completed';
-      }
-    }
+      },
+    },
   },
 
   ISSUE: buildMultiCallTX({
