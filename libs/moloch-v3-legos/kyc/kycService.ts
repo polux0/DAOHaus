@@ -31,6 +31,7 @@ export class KycService {
         email_address: userData.email_address!,
         phone_number: userData.phone_number!,
         gdpr_consent: userData.gdpr_consent!,
+        nft_id: userData.nft_id!
       };
       return await this.kycRepository.create(newUser);
     } catch (error) {

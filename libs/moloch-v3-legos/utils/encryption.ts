@@ -1,23 +1,25 @@
 // added for purposes of RobinHoodDAO
 
 // Define the type for the encryption key
-type CryptoKeyAES = CryptoKey & { algorithm: { name: 'AES-GCM', length: 256 } };
+type CryptoKeyAES = CryptoKey & { algorithm: { name: 'AES-GCM'; length: 256 } };
 
 // Generate an AES-GCM encryption key
 export async function generateKey(): Promise<CryptoKeyAES> {
-  return await window.crypto.subtle.generateKey(
+  return (await window.crypto.subtle.generateKey(
     {
       name: 'AES-GCM',
       length: 256,
     },
     true, // whether the key is extractable (i.e., can be used in exportKey)
     ['encrypt', 'decrypt'] // can be: "encrypt", "decrypt", "wrapKey", or "unwrapKey"
-  ) as CryptoKeyAES;
+  )) as CryptoKeyAES;
 }
 
-
 // Encrypt data using the provided key
-export async function encryptData(data: string, key: CryptoKeyAES): Promise<{ encryptedData: ArrayBuffer; iv: Uint8Array }> {
+export async function encryptData(
+  data: string,
+  key: CryptoKeyAES
+): Promise<{ encryptedData: ArrayBuffer; iv: Uint8Array }> {
   const iv = window.crypto.getRandomValues(new Uint8Array(12)); // Initialization vector for AES-GCM
   const encodedData = new TextEncoder().encode(data);
 
@@ -34,7 +36,11 @@ export async function encryptData(data: string, key: CryptoKeyAES): Promise<{ en
 }
 
 // Decrypt data using the provided key and IV
-export async function decryptData(encryptedData: ArrayBuffer, iv: Uint8Array, key: CryptoKeyAES): Promise<string> {
+export async function decryptData(
+  encryptedData: ArrayBuffer,
+  iv: Uint8Array,
+  key: CryptoKeyAES
+): Promise<string> {
   const decryptedData = await window.crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
@@ -63,8 +69,6 @@ export function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
   });
 }
 
-
-
 // Export the key to a raw format and convert to base64 string for storage
 export async function exportKey(key: CryptoKeyAES): Promise<string> {
   const exportedKey = await window.crypto.subtle.exportKey('raw', key);
@@ -84,13 +88,11 @@ export function base64ToBuffer(base64: string): ArrayBuffer {
 // Import a key from a base64 string
 export async function importKey(base64Key: string): Promise<CryptoKeyAES> {
   const keyBuffer = base64ToBuffer(base64Key);
-  return await window.crypto.subtle.importKey(
+  return (await window.crypto.subtle.importKey(
     'raw',
     keyBuffer,
     { name: 'AES-GCM', length: 256 },
     true,
     ['encrypt', 'decrypt']
-  ) as CryptoKeyAES;
+  )) as CryptoKeyAES;
 }
-
-  

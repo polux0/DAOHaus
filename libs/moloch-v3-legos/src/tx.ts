@@ -18,11 +18,15 @@ import { CONTRACT } from './contracts';
 import { SupabaseKycRepository } from '../kyc/supabaseKycRepository';
 import { KycService } from '../kyc/kycService';
 import { Kyc } from '../kyc/kyc';
-import { generateKey, encryptData, decryptData, bufferToBase64, base64ToBuffer,} from '../utils/encryption';
- 
+import {
+  generateKey,
+  encryptData,
+  decryptData,
+  bufferToBase64,
+  base64ToBuffer,
+} from '../utils/encryption';
 
 // added for purposes of RobinHoodDAO
-
 
 const nestInArray = (arg: ValidArgType | ValidArgType[]): NestedArray => {
   return {
@@ -84,7 +88,10 @@ export const TX: Record<string, TXLego> = {
     disablePoll: true,
     customPoll: {},
     persist: {
-      saveInDatabase: async (formValues: any) => {
+      saveInDatabase: async (formValues: any, nftId: number) => {
+        // we need an NFT id here...
+
+        // we'll need to fetch supabase key here
         const key: any = await generateKey();
         const exportedKey = await window.crypto.subtle.exportKey('raw', key);
         const base64Key = await bufferToBase64(exportedKey);
@@ -97,6 +104,7 @@ export const TX: Record<string, TXLego> = {
           email_address: formValues.email,
           phone_number: formValues.phoneNumber,
           gdpr_consent: true,
+          nft_id: nftId
         };
         const kycRepository = new SupabaseKycRepository();
         const kycService = new KycService(kycRepository);

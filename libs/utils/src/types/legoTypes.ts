@@ -166,7 +166,7 @@ export type TXLegoBase = {
     test?: (result?: any) => boolean;
   };
   persist?: {
-    saveInDatabase?: (formValues?: any) => void;
+    saveInDatabase?: (formValues: any, nftId:number) => void;
   };
 };
 

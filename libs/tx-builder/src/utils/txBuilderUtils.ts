@@ -1,6 +1,6 @@
 import { PublicClient } from 'wagmi';
 import { getAccount } from '@wagmi/core';
-import { Hash, zeroAddress } from 'viem';
+import { Hash, zeroAddress} from 'viem';
 
 import { ABI, ArbitraryState, ReactSetter, TXLego } from '@daohaus/utils';
 import {
@@ -18,6 +18,9 @@ import { ArgCallback, TXLifeCycleFns } from '../TXBuilder';
 import { processOverrides } from './overrides';
 
 import { formatFetchError, fetch } from '@daohaus/data-fetch-utils';
+
+// Added for purposes of RobinHoodDAO
+import { fromHex } from 'viem';
 
 export type TxRecord = Record<string, TXLego>;
 export type MassState = {
@@ -71,11 +74,13 @@ export const executeTx = async (args: {
     });
     console.log('**Transaction Mined**');
     console.log('**Transaction Receipt**', receipt);
+    // added for purposes of RobinHoodDAO
+    const nftId: number = fromHex(receipt.logs[0].topics[3]!, 'number');
 
     if (receipt.status === 'reverted') {
       throw new Error('CALL_EXCEPTION: txReceipt status 0');
     }
-
+    
     setTransactions((prevState) => ({
       ...prevState,
       [txHash]: { ...tx, status: 'polling' },
@@ -85,8 +90,11 @@ export const executeTx = async (args: {
 
     // added for purposes of RobinHoodDAO
     if (tx.persist && tx.persist.saveInDatabase) {
-      console.log(`From txBuilderUtils, appState.formValues: `, appState.formValues);
-      tx.persist.saveInDatabase(appState.formValues);
+      console.log(
+        `From txBuilderUtils, appState.formValues: `,
+        appState.formValues
+      );
+      tx.persist.saveInDatabase(appState.formValues, nftId);
     }
 
     if (!tx.disablePoll) {
