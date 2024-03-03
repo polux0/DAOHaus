@@ -4,7 +4,6 @@ import { FieldLegoBase, FormLegoBase } from '@daohaus/utils';
 
 export const AppFieldLookup = {
   ...MolochFields,
-  //   testField: TestField,
 };
 
 export type CustomFieldLego = FieldLegoBase<typeof AppFieldLookup>;

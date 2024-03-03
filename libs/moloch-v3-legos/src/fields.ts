@@ -128,32 +128,33 @@ export const FIELD: Record<string, MolochFieldLego> = {
   },
   // added for purposes of RobinHoodDAO
   FULL_NAME: {
-    id:'fullName', 
+    id: 'fullName',
     type: 'input',
     label: 'Name and Surname',
     placeholder: 'Enter name and surname',
   },
   // added for purposes of RobinHoodDAO
-  E_MAIL:{
-    id:'email', 
+  E_MAIL: {
+    id: 'email',
     type: 'input',
     label: 'Email address',
     placeholder: 'Enter email address',
   },
   // added for purposes of RobinHoodDAO
-  PHONE_NUMBER:{
-    id:'phoneNumber', 
+  PHONE_NUMBER: {
+    id: 'phoneNumber',
     type: 'input',
     label: 'Phone number',
     placeholder: 'Enter phone number',
   },
   // added for purposes of RobinHoodDAO
-  // technical debt - checkRender components are adding unnecessary spacing
+  // technical debt - checkRender components are adding unnecessary spacing, and we don't have value of this field
   GDPR_CONSENT: {
     id: 'gdprConsent',
     type: 'checkRender',
     label: 'GDPR consent',
-    gateLabel: 'I consent to the processing of my personal data as required for compliance with legal obligations.',
+    gateLabel:
+      'I consent to the processing of my personal data as required for compliance with legal obligations.',
     components: [
       // {
       //   id: 'proposalExpiry',

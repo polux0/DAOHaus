@@ -64,10 +64,10 @@ export const CONTRACT: Record<string, ContractLego> = {
     targetAddress: CONTRACT_KEYCHAINS.GNOSIS_MULTISEND,
   },
   // added for purposes of RobinHoodDAO
-  MEMBERSHIP_NFT:{
+  MEMBERSHIP_NFT: {
     type: 'static',
     contractName: 'MembershipNFT',
     abi: LOCAL_ABI.MEMBERSHIP_NFT,
-    targetAddress: CONTRACT_KEYCHAINS.MEMBERSHIP_NFT
-  }
+    targetAddress: CONTRACT_KEYCHAINS.MEMBERSHIP_NFT,
+  },
 };

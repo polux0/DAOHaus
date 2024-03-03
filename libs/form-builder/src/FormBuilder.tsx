@@ -130,6 +130,7 @@ export const FormBuilder = ({
       return executed;
     }
     if (onSubmit) {
+      console.log('onSubmit.formValues: ', formValues);
       return await onSubmit?.(formValues);
     }
     console.error('FormBuilder: onSubmit not implemented');

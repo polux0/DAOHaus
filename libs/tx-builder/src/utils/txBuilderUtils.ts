@@ -19,6 +19,9 @@ import { processOverrides } from './overrides';
 
 import { formatFetchError, fetch } from '@daohaus/data-fetch-utils';
 
+// Added for purposes of RobinHoodDAO
+import { fromHex } from 'viem';
+
 export type TxRecord = Record<string, TXLego>;
 export type MassState = {
   tx: TXLego;
@@ -71,6 +74,8 @@ export const executeTx = async (args: {
     });
     console.log('**Transaction Mined**');
     console.log('**Transaction Receipt**', receipt);
+    // added for purposes of RobinHoodDAO
+    const nftId: number = fromHex(receipt.logs[0].topics[3]!, 'number');
 
     if (receipt.status === 'reverted') {
       throw new Error('CALL_EXCEPTION: txReceipt status 0');
@@ -82,6 +87,15 @@ export const executeTx = async (args: {
     }));
     console.log('**Transaction Successful**');
     lifeCycleFns?.onTxSuccess?.(receipt, txHash, appState);
+
+    // added for purposes of RobinHoodDAO
+    if (tx.persist && tx.persist.saveInDatabase) {
+      console.log(
+        `From txBuilderUtils, appState.formValues: `,
+        appState.formValues
+      );
+      tx.persist.saveInDatabase(appState.formValues, nftId);
+    }
 
     if (!tx.disablePoll) {
       standardGraphPoll({

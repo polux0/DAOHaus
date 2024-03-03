@@ -120,7 +120,7 @@ export const CONTRACT_KEYCHAINS: Record<string, Keychain> = {
     '0xa4b1': '0x00000000000DC7F163742Eb4aBEf650037b1f588',
     '0x2105': '0x000000000000aDdB49795b0f9bA5BC298cDda236',
   },
-  MEMBERSHIP_NFT:{
+  MEMBERSHIP_NFT: {
     '0x1': '0x0',
     '0x5': '0x1c40628cDa58ABC25101AB7AA1a31d62BbB94C6c',
     '0xaa36a7': '0x0',
@@ -129,5 +129,5 @@ export const CONTRACT_KEYCHAINS: Record<string, Keychain> = {
     '0xa': '0x0',
     '0xa4b1': '0x0',
     '0x2105': '0x0',
-  }
+  },
 };
