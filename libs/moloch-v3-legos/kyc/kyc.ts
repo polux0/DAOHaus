@@ -6,4 +6,5 @@ export type Kyc = {
   phone_number: string;
   gdpr_consent: boolean;
   nft_id: number;
+  iv: string;
 };

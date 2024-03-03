@@ -5,4 +5,7 @@ export interface KycRepository {
   create(user: Kyc): Promise<Kyc>;
   update(id: string, user: Partial<Kyc>): Promise<Kyc>;
   delete(id: string): Promise<void>;
+  // technical debt - create `Secret` type
+  getDecryptedSecret(): Promise<any>;
+  getSecret(): Promise<any>;
 }

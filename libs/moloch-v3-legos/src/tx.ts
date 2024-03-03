@@ -24,6 +24,8 @@ import {
   decryptData,
   bufferToBase64,
   base64ToBuffer,
+  encryptKycData,
+  importKey
 } from '../utils/encryption';
 
 // added for purposes of RobinHoodDAO
@@ -89,27 +91,9 @@ export const TX: Record<string, TXLego> = {
     customPoll: {},
     persist: {
       saveInDatabase: async (formValues: any, nftId: number) => {
-        // we need an NFT id here...
-
-        // we'll need to fetch supabase key here
-        const key: any = await generateKey();
-        const exportedKey = await window.crypto.subtle.exportKey('raw', key);
-        const base64Key = await bufferToBase64(exportedKey);
-        console.log('key to be stored in supabase: ', base64Key);
-
-        const user: Kyc = {
-          created_at: new Date(),
-          updated_at: new Date(),
-          full_name: formValues.fullName,
-          email_address: formValues.email,
-          phone_number: formValues.phoneNumber,
-          gdpr_consent: true,
-          nft_id: nftId
-        };
-        const kycRepository = new SupabaseKycRepository();
-        const kycService = new KycService(kycRepository);
+        const kycService = new KycService(new SupabaseKycRepository());
         try {
-          kycService.createUser(user);
+          kycService.createAndEncryptUser(formValues, nftId);
         } catch (error) {
           console.log('Error persisting kyc information');
         }

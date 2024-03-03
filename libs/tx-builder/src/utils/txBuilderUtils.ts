@@ -1,6 +1,6 @@
 import { PublicClient } from 'wagmi';
 import { getAccount } from '@wagmi/core';
-import { Hash, zeroAddress} from 'viem';
+import { Hash, zeroAddress } from 'viem';
 
 import { ABI, ArbitraryState, ReactSetter, TXLego } from '@daohaus/utils';
 import {
@@ -80,7 +80,7 @@ export const executeTx = async (args: {
     if (receipt.status === 'reverted') {
       throw new Error('CALL_EXCEPTION: txReceipt status 0');
     }
-    
+
     setTransactions((prevState) => ({
       ...prevState,
       [txHash]: { ...tx, status: 'polling' },

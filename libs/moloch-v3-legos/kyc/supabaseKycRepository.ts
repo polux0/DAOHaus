@@ -1,5 +1,5 @@
 import { KycRepository } from './kycRepository';
-import initiateSupabase from './supabase';
+import { initiateSupabase, signInUser } from './supabase';
 import { Kyc } from './kyc';
 
 // Initialize Supabase client
@@ -49,5 +49,29 @@ export class SupabaseKycRepository implements KycRepository {
     const { error } = await supabase.from('kyc').delete().eq('id', id);
 
     if (error) throw error;
+  }
+  async getDecryptedSecret(): Promise<any>{
+    const { data, error } = await supabase
+      .from('vault.decrypted_secrets')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    if (error) {
+      console.error('Error fetching decrypted secrets:', error);
+      return null;
+    }
+    return data;
+  }
+  async getSecret() {
+    await signInUser();
+    const { data, error } = await supabase.rpc('get_recent_decrypted_secrets');
+
+    if (error) {
+      console.error('Error fetching secrets', error);
+      return null; // or handle the error as appropriate for your application
+    }
+
+    return data;
   }
 }
