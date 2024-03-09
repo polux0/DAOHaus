@@ -24,18 +24,8 @@ export const DaoContainer = () => {
 
   const location = useLocation();
 
-  const navLinks = [
-    { label: 'Hub', href: `/` },
-    { label: 'DAO', href: `/molochv3/${daoChain}/${daoId}` },
-    { label: 'Proposals', href: `/molochv3/${daoChain}/${daoId}/proposals` },
-    { label: 'Safes', href: `/molochv3/${daoChain}/${daoId}/safes` },
-    { label: 'Members', href: `/molochv3/${daoChain}/${daoId}/members` },
-    { label: 'Become a member', href: `/molochv3/${daoChain}/${daoId}/become` },
-
-  ];
-
   function generateNavLinks(address: string | undefined) {
-    console.log("shaman address: " + address);
+    console.log('shaman address: ' + address);
     const shamanAddress = process.env['NX_SHAMAN_ADDRESS'];
     const commonLinks = [
       { label: 'Hub', href: `/` },
@@ -43,20 +33,27 @@ export const DaoContainer = () => {
       { label: 'Proposals', href: `/molochv3/${daoChain}/${daoId}/proposals` },
       { label: 'Safes', href: `/molochv3/${daoChain}/${daoId}/safes` },
       { label: 'Members', href: `/molochv3/${daoChain}/${daoId}/members` },
-      { label: 'Become a member', href: `/molochv3/${daoChain}/${daoId}/become` },
-  
+      {
+        label: 'Become a member',
+        href: `/molochv3/${daoChain}/${daoId}/become`,
+      },
     ];
-    if(shamanAddress === undefined || address === undefined || shamanAddress !== address){
+    if (
+      shamanAddress === undefined ||
+      address === undefined ||
+      shamanAddress !== address
+    ) {
       return commonLinks;
-    }
-    else {
+    } else {
       return [
         ...commonLinks,
-        { label: 'Approve pending members', href: `/molochv3/${daoChain}/${daoId}/approve` }
-      ]
+        {
+          label: 'Approve pending members',
+          href: `/molochv3/${daoChain}/${daoId}/approve`,
+        },
+      ];
     }
   }
-  
 
   const moreLinks = [
     { label: 'Settings', href: `/molochv3/${daoChain}/${daoId}/settings` },
