@@ -50,7 +50,7 @@ export class SupabaseKycRepository implements KycRepository {
 
     if (error) throw error;
   }
-  async getDecryptedSecret(): Promise<any>{
+  async getDecryptedSecret(): Promise<any> {
     const { data, error } = await supabase
       .from('vault.decrypted_secrets')
       .select('*')

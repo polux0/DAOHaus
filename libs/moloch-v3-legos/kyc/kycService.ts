@@ -1,4 +1,9 @@
-import { CryptoKeyAES, bufferToBase64, encryptKycData, importKey } from '../utils/encryption';
+import {
+  CryptoKeyAES,
+  bufferToBase64,
+  encryptKycData,
+  importKey,
+} from '../utils/encryption';
 import { Kyc } from './kyc';
 import { KycRepository } from './kycRepository';
 
@@ -39,20 +44,24 @@ export class KycService {
       phone_number: formValues.phoneNumber,
       gdpr_consent: true,
       nft_id: nftId,
-      iv: "iv",
+      iv: 'iv',
     };
   }
   async encryptUserData(user: Kyc, key: CryptoKeyAES): Promise<Kyc> {
+    const {
+      fullNameEncrypted,
+      emailAddressEncrypted,
+      phoneNumberEncrypted,
+      iv,
+    } = await encryptKycData(user, key);
 
-    const { fullNameEncrypted, emailAddressEncrypted, phoneNumberEncrypted, iv } = await encryptKycData(user, key);
-
-      return {
-        ...user,
-        full_name: await bufferToBase64(fullNameEncrypted),
-        email_address: await bufferToBase64(emailAddressEncrypted),
-        phone_number: await bufferToBase64(phoneNumberEncrypted),
-        iv: await bufferToBase64(iv),
-      };
+    return {
+      ...user,
+      full_name: await bufferToBase64(fullNameEncrypted),
+      email_address: await bufferToBase64(emailAddressEncrypted),
+      phone_number: await bufferToBase64(phoneNumberEncrypted),
+      iv: await bufferToBase64(iv),
+    };
   }
   async createUser(userData: Partial<Kyc>): Promise<Kyc> {
     try {
@@ -64,7 +73,7 @@ export class KycService {
         phone_number: userData.phone_number!,
         gdpr_consent: userData.gdpr_consent!,
         nft_id: userData.nft_id!,
-        iv: userData.iv!
+        iv: userData.iv!,
       };
       return await this.kycRepository.create(newUser);
     } catch (error) {
@@ -72,10 +81,13 @@ export class KycService {
       throw error;
     }
   }
-  public async createAndEncryptUser(formValues: any, nftId: number): Promise<void> {
+  public async createAndEncryptUser(
+    formValues: any,
+    nftId: number
+  ): Promise<void> {
     try {
       const keyString = process.env.NX_KYC_ENCRYPTION_KEY;
-      if(!keyString) throw new Error('NX_KYC_ENCRYPTION_KEY is not defined!');
+      if (!keyString) throw new Error('NX_KYC_ENCRYPTION_KEY is not defined!');
       const key = await importKey(keyString);
       const user = await this.prepareKycUser(formValues, nftId);
       const encryptedUserData = await this.encryptUserData(user, key);

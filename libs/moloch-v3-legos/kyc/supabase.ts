@@ -17,8 +17,8 @@ export function initiateSupabase(): SupabaseClient {
   return supabase;
 }
 export async function signInUser() {
-
-  const shamanEmail: string | undefined = process.env.NX_SUPABASE_SHAMAN_USER_NAME;
+  const shamanEmail: string | undefined =
+    process.env.NX_SUPABASE_SHAMAN_USER_NAME;
   const shamanKey: string | undefined = process.env.NX_SUPABASE_SHAMAN_KEY;
 
   if (!shamanEmail || !shamanKey) {
