@@ -25,7 +25,7 @@ import {
   bufferToBase64,
   base64ToBuffer,
   encryptKycData,
-  importKey
+  importKey,
 } from '../utils/encryption';
 
 // added for purposes of RobinHoodDAO

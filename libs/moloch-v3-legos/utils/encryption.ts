@@ -1,9 +1,11 @@
 // added for purposes of RobinHoodDAO
 
-import { Kyc } from "../kyc/kyc";
+import { Kyc } from '../kyc/kyc';
 
 // Define the type for the encryption key
-export type CryptoKeyAES = CryptoKey & { algorithm: { name: 'AES-GCM'; length: 256 } };
+export type CryptoKeyAES = CryptoKey & {
+  algorithm: { name: 'AES-GCM'; length: 256 };
+};
 
 // Generate an AES-GCM encryption key
 export async function generateKey(): Promise<CryptoKeyAES> {
@@ -41,12 +43,19 @@ export async function encryptData(
 export async function encryptKycData(
   data: Kyc,
   key: CryptoKeyAES
-): Promise<{ fullNameEncrypted: ArrayBuffer, emailAddressEncrypted: ArrayBuffer, phoneNumberEncrypted: ArrayBuffer, iv: Uint8Array }> {
+): Promise<{
+  fullNameEncrypted: ArrayBuffer;
+  emailAddressEncrypted: ArrayBuffer;
+  phoneNumberEncrypted: ArrayBuffer;
+  iv: Uint8Array;
+}> {
   const iv = window.crypto.getRandomValues(new Uint8Array(12)); // Initialization vector for AES-GCM
 
   const encodedDataFullName = new TextEncoder().encode(data.full_name);
   const encodedDataEmailAddress = new TextEncoder().encode(data.email_address);
-  const encodedDataMobilePhoneNumber = new TextEncoder().encode(data.phone_number);
+  const encodedDataMobilePhoneNumber = new TextEncoder().encode(
+    data.phone_number
+  );
 
   const fullNameEncrypted = await window.crypto.subtle.encrypt(
     {
@@ -73,8 +82,7 @@ export async function encryptKycData(
     encodedDataMobilePhoneNumber
   );
 
-
-  return { fullNameEncrypted, emailAddressEncrypted, phoneNumberEncrypted , iv };
+  return { fullNameEncrypted, emailAddressEncrypted, phoneNumberEncrypted, iv };
 }
 
 // Decrypt data using the provided key and IV
