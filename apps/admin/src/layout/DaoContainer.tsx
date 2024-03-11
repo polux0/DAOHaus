@@ -49,7 +49,7 @@ export const DaoContainer = () => {
         ...commonLinks,
         {
           label: 'Approve pending members',
-          href: `/molochv3/${daoChain}/${daoId}/approve`,
+          href: `/molochv3/${daoChain}/${daoId}/members/approve`,
         },
       ];
     }
