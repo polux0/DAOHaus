@@ -27,7 +27,7 @@ import {
   LoadingContainer,
   MemberContainer,
 } from './MemberList.styles';
-import { PendingMembersOverview } from './PendingMembersOverview';
+// import { PendingMembersOverview } from './PendingMembersOverview';
 import { MemberProfileAvatar, MemberProfileMenu } from '../MemberProfileCard';
 
 type MembersTableType = MolochV3Members[number];
@@ -84,16 +84,17 @@ export const PendingMemberList = ({
       },
       {
         Header: () => {
-          return <div className="hide-sm">Join Date</div>;
+          return <div className="hide-sm">Membership Request Date</div>;
         },
         accessor: 'createdAt',
         Cell: ({ value }: { value: string }) => {
+          console.log('value: ', value);
           return <div className="hide-sm">{formatDateFromSeconds(value)}</div>;
         },
       },
       {
         Header: () => {
-          return <div className="hide-sm">Power</div>;
+          return <div className="hide-sm">Full name</div>;
         },
         accessor: 'delegateShares',
         Cell: ({
@@ -127,7 +128,7 @@ export const PendingMemberList = ({
       },
       {
         Header: () => {
-          return <div className="hide-sm">Delegating To</div>;
+          return <div className="hide-sm">Email Address</div>;
         },
         accessor: 'delegatingTo',
         Cell: ({
@@ -150,7 +151,7 @@ export const PendingMemberList = ({
       },
       {
         Header: () => {
-          return <>Voting</>;
+          return <>Phone Number</>;
         },
         accessor: 'shares',
         Cell: ({ value }: { value: string }) => {
@@ -167,7 +168,7 @@ export const PendingMemberList = ({
       },
       {
         Header: () => {
-          return <div>Non-Voting</div>;
+          return <div>Id</div>;
         },
         accessor: 'loot',
         Cell: ({ value }: { value: string }) => {

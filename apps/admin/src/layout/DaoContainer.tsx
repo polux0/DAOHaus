@@ -25,7 +25,6 @@ export const DaoContainer = () => {
   const location = useLocation();
 
   function generateNavLinks(address: string | undefined) {
-    console.log('shaman address: ' + address);
     const shamanAddress = process.env['NX_SHAMAN_ADDRESS'];
     const commonLinks = [
       { label: 'Hub', href: `/` },

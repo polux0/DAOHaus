@@ -35,7 +35,9 @@ type PendingMembersOverviewProps = {
   dao: MolochV3Dao;
 };
 
-export const PendingMembersOverview = ({ dao }: PendingMembersOverviewProps) => {
+export const PendingMembersOverview = ({
+  dao,
+}: PendingMembersOverviewProps) => {
   return (
     <PendingMembersOverviewCard>
       <DataGrid>

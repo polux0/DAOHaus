@@ -62,21 +62,21 @@ export const ApproveMembers = () => {
   return (
     <SingleColumnLayout
       title="Pending members"
-    //   actions={
-    //     <Actions>
-    //       <ButtonRouterLink
-    //         to={`/molochV3/${daoChain}/${daoId}/new-proposal?formLego=ISSUE`}
-    //         color="secondary"
-    //         fullWidth={isMd}
-    //         linkType="no-icon-external"
-    //       >
-    //         Add Member
-    //       </ButtonRouterLink>
-    //       {daoChain && daoId && (
-    //         <MemberProfileButton daoChain={daoChain} daoId={daoId} />
-    //       )}
-    //     </Actions>
-    //   }
+      //   actions={
+      //     <Actions>
+      //       <ButtonRouterLink
+      //         to={`/molochV3/${daoChain}/${daoId}/new-proposal?formLego=ISSUE`}
+      //         color="secondary"
+      //         fullWidth={isMd}
+      //         linkType="no-icon-external"
+      //       >
+      //         Add Member
+      //       </ButtonRouterLink>
+      //       {daoChain && daoId && (
+      //         <MemberProfileButton daoChain={daoChain} daoId={daoId} />
+      //       )}
+      //     </Actions>
+      //   }
     >
       {!daoChain || !daoId ? (
         <Loading size={isMd ? 80 : 160} padding="6rem" />
