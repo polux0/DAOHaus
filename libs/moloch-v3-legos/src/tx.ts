@@ -14,21 +14,9 @@ import { MaxUint256 } from '@daohaus/utils';
 import { ProposalTypeIds } from '@daohaus/utils';
 import { CONTRACT } from './contracts';
 
-// added for purposes of RobinHoodDAO
+// modified for purposes of RobinHoodDAO
 import { SupabaseKycRepository } from '../kyc/supabaseKycRepository';
 import { KycService } from '../kyc/kycService';
-import { Kyc } from '../kyc/kyc';
-import {
-  generateKey,
-  encryptData,
-  decryptData,
-  bufferToBase64,
-  base64ToBuffer,
-  encryptKycData,
-  importKey,
-} from '../utils/encryption';
-
-// added for purposes of RobinHoodDAO
 
 const nestInArray = (arg: ValidArgType | ValidArgType[]): NestedArray => {
   return {

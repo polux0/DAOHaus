@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Column, Row } from 'react-table';
+import { useEffect, useMemo, useState } from 'react';
+import { Column, Cell, Row } from 'react-table';
 
 import { ValidNetwork } from '@daohaus/keychain-utils';
 import { Member_OrderBy, MolochV3Members } from '@daohaus/moloch-v3-data';
@@ -30,7 +30,19 @@ import {
 // import { PendingMembersOverview } from './PendingMembersOverview';
 import { MemberProfileAvatar, MemberProfileMenu } from '../MemberProfileCard';
 
+import { Kyc } from '@daohaus/moloch-v3-legos';
+import { SupabaseKycRepository } from '@daohaus/moloch-v3-legos';
+import { KycService } from '@daohaus/moloch-v3-legos';
+
 type MembersTableType = MolochV3Members[number];
+type PendingMembersTableType = {
+  createdAt: string,
+  fullName: string,
+  emailAddress: string,
+  phoneNumber: string,
+  id: number
+}
+
 
 type MemberListProps = {
   daoChain: ValidNetwork;
@@ -56,154 +68,68 @@ export const PendingMemberList = ({
   } = useDaoMembers();
   const isMd = useBreakpoint(widthQuery.md);
 
-  const tableData = useMemo<MolochV3Members>(() => {
-    if (members) {
-      const filteredMembers = members.filter((member) => member !== undefined);
-      return filteredMembers?.length
-        ? (filteredMembers as MolochV3Members)
-        : [];
-    }
-    return [];
+  const [tableData, setTableData] = useState<PendingMembersTableType[]>([]);
+  useEffect(() => {
+    const fetchPendingMembers = async () => {
+      const kycService = new KycService(new SupabaseKycRepository());
+      const pendingMembers = await kycService.getAllUsers();
+
+      if (pendingMembers) {
+        const members = pendingMembers.filter((member) => member !== undefined);
+        const membersTransformed = members.map((member) => ({
+          createdAt: new Date(member.created_at).toISOString().substring(0, new Date(member.created_at).toISOString().lastIndexOf(':')),
+          fullName: member.full_name,
+          emailAddress: member.email_address,
+          phoneNumber: member.phone_number,
+          id: member.nft_id, // Assuming nft_id is the appropriate id for your table
+        }));
+        setTableData(membersTransformed.length ? membersTransformed : []);
+      }
+    };
+
+    fetchPendingMembers().catch(console.error);
   }, [members]);
 
-  const columns = useMemo<Column<MembersTableType>[]>(
-    () => [
-      {
-        Header: 'Member',
-        accessor: 'memberAddress',
-        Cell: ({ value }: { value: string }) => {
-          return (
-            <MemberProfileAvatar
-              daoChain={daoChain}
-              daoId={daoId}
-              memberAddress={value}
-              allowLinks={allowLinks}
-            />
-          );
-        },
-      },
-      {
-        Header: () => {
-          return <div className="hide-sm">Membership Request Date</div>;
-        },
-        accessor: 'createdAt',
-        Cell: ({ value }: { value: string }) => {
-          console.log('value: ', value);
-          return <div className="hide-sm">{formatDateFromSeconds(value)}</div>;
-        },
-      },
-      {
-        Header: () => {
-          return <div className="hide-sm">Full name</div>;
-        },
-        accessor: 'delegateShares',
-        Cell: ({
-          value,
-          row,
-        }: {
-          value: string;
-          row: Row<MembersTableType>;
-        }) => {
-          const delegatedShares = sharesDelegatedToMember(
-            row.original.delegateShares,
-            row.original.shares
-          );
-          return (
-            <div className="hide-sm">
-              {votingPowerPercentage(dao?.totalShares || '0', value)}
-              {' %'}
-              {Number(delegatedShares) > 0 && (
-                <Tooltip
-                  content={`${formatValueTo({
-                    value: fromWei(delegatedShares),
-                    decimals: 2,
-                    format: 'number',
-                  })} voting tokens are delegated to this member`}
-                  side="bottom"
-                />
-              )}
-            </div>
-          );
-        },
-      },
-      {
-        Header: () => {
-          return <div className="hide-sm">Email Address</div>;
-        },
-        accessor: 'delegatingTo',
-        Cell: ({
-          value,
-          row,
-        }: {
-          value: string;
-          row: Row<MembersTableType>;
-        }) => {
-          return (
-            <div className="hide-sm">
-              {value === row.original.memberAddress ? (
-                '--'
-              ) : (
-                <AddressDisplay address={value} truncate />
-              )}
-            </div>
-          );
-        },
-      },
-      {
-        Header: () => {
-          return <>Phone Number</>;
-        },
-        accessor: 'shares',
-        Cell: ({ value }: { value: string }) => {
-          return (
-            <div>
-              {formatValueTo({
-                value: fromWei(value),
-                decimals: 2,
-                format: 'number',
-              })}
-            </div>
-          );
-        },
-      },
-      {
-        Header: () => {
-          return <div>Id</div>;
-        },
-        accessor: 'loot',
-        Cell: ({ value }: { value: string }) => {
-          return (
-            <div>
-              {formatValueTo({
-                value: fromWei(value),
-                decimals: 2,
-                format: 'number',
-              })}
-            </div>
-          );
-        },
-      },
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, row: Row<PendingMembersTableType>) => {
+    const isChecked = e.target.checked;
+    console.log(`Checkbox for row ${row.id} is now ${isChecked ? 'checked' : 'unchecked'}`);
+    
+  };
 
-      {
-        accessor: 'id',
-        Cell: ({ row }: { row: Row<MembersTableType> }) => {
-          return (
-            <ActionContainer>
-              <MemberProfileMenu
-                daoChain={daoChain}
-                daoId={daoId}
-                memberAddress={row.original.memberAddress}
-                allowLinks={allowLinks}
-                allowMemberMenu={allowMemberMenu}
-              />
-            </ActionContainer>
-          );
-        },
-      },
-    ],
-    [daoChain, dao, allowLinks, daoId, allowMemberMenu]
-  );
-
+  const columns: Column<PendingMembersTableType>[] = [
+    {
+      Header: 'Date',
+      accessor: 'createdAt', // accessor is the "key" in the data
+    },
+    {
+      Header: 'Full Name',
+      accessor: 'fullName',
+    },
+    {
+      Header: 'Email Address',
+      accessor: 'emailAddress',
+    },
+    {
+      Header: 'Phone Number',
+      accessor: 'phoneNumber',
+    },
+    {
+      Header: 'ID',
+      accessor: 'id',
+    },
+    {
+      Header: 'Approve',
+      id: 'approve',
+      // technical debt - checkbox needs to be styled
+      Cell: ({ row } : {row: Row<PendingMembersTableType>}) => (
+        <input
+          type="checkbox"
+          onChange={(e) => handleCheckboxChange(e, row)}
+        />
+      ),
+    }
+  ];
+  
   const handleColumnSort = (
     orderBy: string,
     orderDirection: 'asc' | 'desc'
@@ -226,7 +152,8 @@ export const PendingMemberList = ({
         </LoadingContainer>
       )}
       {dao && members && tableData && columns && (
-        <DaoTable<MembersTableType>
+
+        <DaoTable<PendingMembersTableType>
           tableData={tableData}
           columns={columns}
           hasNextPaging={hasNextPage}
