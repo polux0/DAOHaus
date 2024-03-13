@@ -22,6 +22,7 @@ import { FormTest } from './pages/FormTest';
 import NewProposal from './pages/NewProposal';
 import UpdateSettings from './pages/UpdateSettings';
 import RageQuit from './pages/RageQuit';
+import { ApproveMembers } from './pages/ApproveMembers';
 
 export const Routes = ({
   setDaoChainId,
@@ -58,6 +59,7 @@ export const Routes = ({
         <Route path="settings/update" element={<UpdateSettings />} />
         <Route path="members/ragequit" element={<RageQuit />} />
         <Route path="become" element={<BecomeAMember />} />
+        <Route path="members/approve" element={<ApproveMembers />} />
         {/* This ^ page needs to be defined yet */}
       </Route>
     </RoutesDom>

@@ -37,7 +37,6 @@ export function DaoTable<T extends object>({
       columns: columns,
       data: tableData,
     });
-
   return (
     <>
       <Table {...getTableProps}>

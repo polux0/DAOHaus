@@ -3,6 +3,7 @@ export * from './DaoSettings';
 export * from './DaohausTable';
 export * from './MemberDisplay';
 export * from './MemberProfileCard';
+export * from './PendingMemberList';
 export * from './MemberList';
 export * from './ProposalDetails';
 export * from './ProposalActionData';
