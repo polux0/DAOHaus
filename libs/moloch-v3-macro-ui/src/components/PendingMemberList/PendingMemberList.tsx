@@ -11,6 +11,7 @@ import {
   Tooltip,
   useBreakpoint,
   widthQuery,
+  Button,
 } from '@daohaus/ui';
 import {
   formatDateFromSeconds,
@@ -35,14 +36,15 @@ import { SupabaseKycRepository } from '@daohaus/moloch-v3-legos';
 import { KycService } from '@daohaus/moloch-v3-legos';
 
 type MembersTableType = MolochV3Members[number];
-type PendingMembersTableType = {
-  createdAt: string,
-  fullName: string,
-  emailAddress: string,
-  phoneNumber: string,
-  id: number
-}
 
+// technical debt - this should be moved in MolochV3 data
+type PendingMembersTableType = {
+  createdAt: string;
+  fullName: string;
+  emailAddress: string;
+  phoneNumber: string;
+  id: number;
+};
 
 type MemberListProps = {
   daoChain: ValidNetwork;
@@ -69,6 +71,8 @@ export const PendingMemberList = ({
   const isMd = useBreakpoint(widthQuery.md);
 
   const [tableData, setTableData] = useState<PendingMembersTableType[]>([]);
+  const [selectedMembersNFTIds, setSelectedMembersNFTIds] = useState<number[]>([]);
+
   useEffect(() => {
     const fetchPendingMembers = async () => {
       const kycService = new KycService(new SupabaseKycRepository());
@@ -77,7 +81,12 @@ export const PendingMemberList = ({
       if (pendingMembers) {
         const members = pendingMembers.filter((member) => member !== undefined);
         const membersTransformed = members.map((member) => ({
-          createdAt: new Date(member.created_at).toISOString().substring(0, new Date(member.created_at).toISOString().lastIndexOf(':')),
+          createdAt: new Date(member.created_at)
+            .toISOString()
+            .substring(
+              0,
+              new Date(member.created_at).toISOString().lastIndexOf(':')
+            ),
           fullName: member.full_name,
           emailAddress: member.email_address,
           phoneNumber: member.phone_number,
@@ -90,11 +99,32 @@ export const PendingMemberList = ({
     fetchPendingMembers().catch(console.error);
   }, [members]);
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, row: Row<PendingMembersTableType>) => {
+  useEffect(() => {
+    // This function runs every time selectedRowIds changes
+    console.log('Current selected row IDs:', selectedMembersNFTIds);
+  }, [selectedMembersNFTIds]);
+
+  const handleCheckboxChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    row: Row<PendingMembersTableType>
+  ) => {
     const isChecked = e.target.checked;
-    console.log(`Checkbox for row ${row.id} is now ${isChecked ? 'checked' : 'unchecked'}`);
-    
-  };
+    if (isChecked) {
+      // Add the rowId to the state if it's not already present
+      setSelectedMembersNFTIds(prev => {
+        if (!prev.includes(row.values.id)) {
+          return [...prev, row.values.id];
+          
+        }
+        return prev; // Return the previous state if the ID is already included
+      });
+    } else {
+      // Remove the rowId from the state
+      setSelectedMembersNFTIds(prev => prev.filter(id => id !== row.values.id));
+      
+    } 
+  }
+
 
   const columns: Column<PendingMembersTableType>[] = [
     {
@@ -121,15 +151,14 @@ export const PendingMemberList = ({
       Header: 'Approve',
       id: 'approve',
       // technical debt - checkbox needs to be styled
-      Cell: ({ row } : {row: Row<PendingMembersTableType>}) => (
-        <input
-          type="checkbox"
-          onChange={(e) => handleCheckboxChange(e, row)}
-        />
+      Cell: ({ row }: { row: Row<PendingMembersTableType> }) => (
+        <input type="checkbox" 
+            checked={selectedMembersNFTIds.includes(row.original.id)}
+            onChange={(e) => handleCheckboxChange(e, row)} />
       ),
-    }
+    },
   ];
-  
+
   const handleColumnSort = (
     orderBy: string,
     orderDirection: 'asc' | 'desc'
@@ -152,19 +181,24 @@ export const PendingMemberList = ({
         </LoadingContainer>
       )}
       {dao && members && tableData && columns && (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+  <DaoTable<PendingMembersTableType>
+    tableData={tableData}
+    columns={columns}
+    hasNextPaging={hasNextPage}
+    handleLoadMore={() => fetchNextPage()}
+    handleColumnSort={handleColumnSort}
+    sortableColumns={
+      isMd
+        ? ['loot', 'shares']
+        : ['createdAt', 'shares', 'loot', 'delegateShares']
+    }
+  />
+  <div style={{ marginTop: '20px' }}>
+    <Button justify='center'>New Proposal</Button>
+  </div>
+</div>
 
-        <DaoTable<PendingMembersTableType>
-          tableData={tableData}
-          columns={columns}
-          hasNextPaging={hasNextPage}
-          handleLoadMore={() => fetchNextPage()}
-          handleColumnSort={handleColumnSort}
-          sortableColumns={
-            isMd
-              ? ['loot', 'shares']
-              : ['createdAt', 'shares', 'loot', 'delegateShares']
-          }
-        />
       )}
       {dao && isLoadingMembers && (
         <LoadingContainer>
