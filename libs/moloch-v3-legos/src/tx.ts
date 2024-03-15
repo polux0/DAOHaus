@@ -88,6 +88,25 @@ export const TX: Record<string, TXLego> = {
       },
     },
   },
+  // added for purposes of RobinHoodDAO
+  SET_MEMBER_VERIFIED: {
+    id: 'SET_MEMBER_VERIFIED',
+    contract: CONTRACT.MEMBERSHIP_NFT,
+    method: 'mint',
+    args: [],
+    disablePoll: true,
+    customPoll: {},
+    persist: {
+      saveInDatabase: async (formValues: any, nftId: number) => {
+        const kycService = new KycService(new SupabaseKycRepository());
+        try {
+          kycService.createAndEncryptUser(formValues, nftId);
+        } catch (error) {
+          console.log('Error persisting kyc information');
+        }
+      },
+    },
+  },
 
   ISSUE: buildMultiCallTX({
     id: 'ISSUE',

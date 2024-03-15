@@ -12,8 +12,10 @@ import {
   useBreakpoint,
   widthQuery,
   Button,
+  useToast,
 } from '@daohaus/ui';
 import {
+  TXLego,
   formatDateFromSeconds,
   formatValueTo,
   fromWei,
@@ -31,9 +33,11 @@ import {
 // import { PendingMembersOverview } from './PendingMembersOverview';
 import { MemberProfileAvatar, MemberProfileMenu } from '../MemberProfileCard';
 
-import { Kyc } from '@daohaus/moloch-v3-legos';
+import { ACTION_TX, Kyc } from '@daohaus/moloch-v3-legos';
 import { SupabaseKycRepository } from '@daohaus/moloch-v3-legos';
 import { KycService } from '@daohaus/moloch-v3-legos';
+import { useTxBuilder } from '@daohaus/tx-builder';
+import { FormFooter } from '@daohaus/form-builder';
 
 type MembersTableType = MolochV3Members[number];
 
@@ -70,8 +74,11 @@ export const PendingMemberList = ({
   } = useDaoMembers();
   const isMd = useBreakpoint(widthQuery.md);
 
-  const [tableData, setTableData] = useState<PendingMembersTableType[]>([]);
-  const [selectedMembersNFTIds, setSelectedMembersNFTIds] = useState<number[]>([]);
+  const [ tableData, setTableData ] = useState<PendingMembersTableType[]>([]);
+  const [ selectedMembersNFTIds, setSelectedMembersNFTIds ] = useState<number[]>([]);
+  const { errorToast, defaultToast, successToast } = useToast();
+  const [ isLoading, setIsLoading ] = useState<boolean>(false);
+  const { fireTransaction } = useTxBuilder();
 
   useEffect(() => {
     const fetchPendingMembers = async () => {
@@ -100,7 +107,6 @@ export const PendingMemberList = ({
   }, [members]);
 
   useEffect(() => {
-    // This function runs every time selectedRowIds changes
     console.log('Current selected row IDs:', selectedMembersNFTIds);
   }, [selectedMembersNFTIds]);
 
@@ -111,20 +117,19 @@ export const PendingMemberList = ({
     const isChecked = e.target.checked;
     if (isChecked) {
       // Add the rowId to the state if it's not already present
-      setSelectedMembersNFTIds(prev => {
+      setSelectedMembersNFTIds((prev) => {
         if (!prev.includes(row.values.id)) {
           return [...prev, row.values.id];
-          
         }
         return prev; // Return the previous state if the ID is already included
       });
     } else {
       // Remove the rowId from the state
-      setSelectedMembersNFTIds(prev => prev.filter(id => id !== row.values.id));
-      
-    } 
-  }
-
+      setSelectedMembersNFTIds((prev) =>
+        prev.filter((id) => id !== row.values.id)
+      );
+    }
+  };
 
   const columns: Column<PendingMembersTableType>[] = [
     {
@@ -152,9 +157,11 @@ export const PendingMemberList = ({
       id: 'approve',
       // technical debt - checkbox needs to be styled
       Cell: ({ row }: { row: Row<PendingMembersTableType> }) => (
-        <input type="checkbox" 
-            checked={selectedMembersNFTIds.includes(row.original.id)}
-            onChange={(e) => handleCheckboxChange(e, row)} />
+        <input
+          type="checkbox"
+          checked={selectedMembersNFTIds.includes(row.original.id)}
+          onChange={(e) => handleCheckboxChange(e, row)}
+        />
       ),
     },
   ];
@@ -166,6 +173,21 @@ export const PendingMemberList = ({
     orderMembers({ orderBy: orderBy as Member_OrderBy, orderDirection });
   };
 
+  const sendTransaction = (nftIds: Array<number>): void => {
+    fireTransaction({
+      tx: {...ACTION_TX.MINT_MEMBERSHIP, staticArgs:[]} as TXLego,
+      lifeCycleFns: {
+        onTxSuccess: () => {
+          defaultToast({
+            title: 'Cancel Success',
+            description: 'Please wait for subgraph to sync',
+          });
+          console.log('do something on success');
+        },
+      }, // Use a comma here if you have more properties to add, otherwise it can be omitted.
+    });
+  }
+  
   if ((!dao && !isLoadingDao) || (!members && !isLoadingMembers))
     return (
       <AlertContainer>
@@ -181,24 +203,32 @@ export const PendingMemberList = ({
         </LoadingContainer>
       )}
       {dao && members && tableData && columns && (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-  <DaoTable<PendingMembersTableType>
-    tableData={tableData}
-    columns={columns}
-    hasNextPaging={hasNextPage}
-    handleLoadMore={() => fetchNextPage()}
-    handleColumnSort={handleColumnSort}
-    sortableColumns={
-      isMd
-        ? ['loot', 'shares']
-        : ['createdAt', 'shares', 'loot', 'delegateShares']
-    }
-  />
-  <div style={{ marginTop: '20px' }}>
-    <Button justify='center'>New Proposal</Button>
-  </div>
-</div>
-
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <DaoTable<PendingMembersTableType>
+            tableData={tableData}
+            columns={columns}
+            hasNextPaging={hasNextPage}
+            handleLoadMore={() => fetchNextPage()}
+            handleColumnSort={handleColumnSort}
+            sortableColumns={
+              isMd
+                ? ['loot', 'shares']
+                : ['createdAt', 'shares', 'loot', 'delegateShares']
+            }
+          />
+          <div style={{ marginTop: '20px' }}>
+            <Button 
+              justify="center"
+              onClick={(e) => sendTransaction(selectedMembersNFTIds)}>Submit</Button>
+          </div>
+          {/* We probably need to setup <FormFooter> here in order to have status indicator of transactions */}
+        </div>
       )}
       {dao && isLoadingMembers && (
         <LoadingContainer>
