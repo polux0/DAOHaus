@@ -855,4 +855,10 @@ export const ACTION_TX: Record<string, TXLegoBase> = {
     contract: CONTRACT.MEMBERSHIP_NFT,
     method: 'mint',
   },
+  // added for purposes of RobinHoodDAO
+  VERIFY_MEMBERSHIP: {
+    id: 'VERIFY_MEMBERSHIP',
+    contract: CONTRACT.MEMBERSHIP_NFT,
+    method: 'setKycStatusMultiple',
+  },
 };

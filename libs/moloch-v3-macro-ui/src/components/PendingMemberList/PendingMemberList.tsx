@@ -19,6 +19,7 @@ import {
   formatDateFromSeconds,
   formatValueTo,
   fromWei,
+  handleErrorMessage,
   sharesDelegatedToMember,
   votingPowerPercentage,
 } from '@daohaus/utils';
@@ -37,7 +38,8 @@ import { ACTION_TX, Kyc } from '@daohaus/moloch-v3-legos';
 import { SupabaseKycRepository } from '@daohaus/moloch-v3-legos';
 import { KycService } from '@daohaus/moloch-v3-legos';
 import { useTxBuilder } from '@daohaus/tx-builder';
-import { FormFooter } from '@daohaus/form-builder';
+import { FormFooterModified, StatusMsg } from '@daohaus/form-builder';
+
 
 type MembersTableType = MolochV3Members[number];
 
@@ -74,10 +76,16 @@ export const PendingMemberList = ({
   } = useDaoMembers();
   const isMd = useBreakpoint(widthQuery.md);
 
-  const [ tableData, setTableData ] = useState<PendingMembersTableType[]>([]);
-  const [ selectedMembersNFTIds, setSelectedMembersNFTIds ] = useState<number[]>([]);
+  const [tableData, setTableData] = useState<PendingMembersTableType[]>([]);
+  const [selectedMembersNFTIds, setSelectedMembersNFTIds] = useState<number[]>(
+    []
+  );
   const { errorToast, defaultToast, successToast } = useToast();
   const [ isLoading, setIsLoading ] = useState<boolean>(false);
+  // status of transaction
+  const [status, setStatus] = useState<null | StatusMsg>(null);
+  // tx hash of the transaction
+  const [txHash, setTxHash] = useState<null | string>(null);
   const { fireTransaction } = useTxBuilder();
 
   useEffect(() => {
@@ -174,9 +182,27 @@ export const PendingMemberList = ({
   };
 
   const sendTransaction = (nftIds: Array<number>): void => {
+    setIsLoading(true);
+    setTxHash(null);
+    setStatus(StatusMsg.Compile);
     fireTransaction({
-      tx: {...ACTION_TX.MINT_MEMBERSHIP, staticArgs:[]} as TXLego,
+      tx: { ...ACTION_TX.VERIFY_MEMBERSHIP, staticArgs: [] } as TXLego,
       lifeCycleFns: {
+        onRequestSign() {
+          setStatus(StatusMsg.Request);
+        },
+        onTxHash(txHash) {
+          setTxHash(txHash);
+          setStatus(StatusMsg.Await);
+        },
+        onTxError: (error) => {
+          setStatus(StatusMsg.TxErr);
+          const errMsg = handleErrorMessage({
+            error,
+          });
+          setIsLoading(false);
+          errorToast({ title: StatusMsg.TxErr, description: errMsg });
+        },
         onTxSuccess: () => {
           defaultToast({
             title: 'Cancel Success',
@@ -186,8 +212,89 @@ export const PendingMemberList = ({
         },
       }, // Use a comma here if you have more properties to add, otherwise it can be omitted.
     });
-  }
-  
+  };
+
+  // const handleSubmit = async (formValues: FieldValues) => {
+  //   if (form.tx) {
+  //     setIsLoading(true);
+  //     setTxHash(null);
+  //     setStatus(StatusMsg.Compile);
+  //     const executed = await fireTransaction({
+  //       tx: form.tx,
+  //       callerState: {
+  //         formValues,
+  //       },
+  //       lifeCycleFns: {
+  //         onRequestSign() {
+  //           setStatus(StatusMsg.Request);
+  //           lifeCycleFns?.onRequestSign?.();
+  //         },
+  //         onTxHash(txHash) {
+  //           setTxHash(txHash);
+  //           setStatus(StatusMsg.Await);
+  //           lifeCycleFns?.onTxHash?.(txHash);
+  //         },
+  //         onTxError(error) {
+  //           setStatus(StatusMsg.TxErr);
+  //           const errMsg = handleErrorMessage({
+  //             error,
+  //             fallback: 'Could not decode error message',
+  //           });
+
+  //           setIsLoading(false);
+  //           lifeCycleFns?.onTxError?.(error);
+  //           errorToast({ title: StatusMsg.TxErr, description: errMsg });
+  //         },
+  //         onTxSuccess(...args) {
+  //           setStatus(
+  //             form.tx?.disablePoll ? StatusMsg.PollSuccess : StatusMsg.TxSuccess
+  //           );
+  //           lifeCycleFns?.onTxSuccess?.(...args);
+  //           defaultToast({
+  //             title: StatusMsg.TxSuccess,
+  //             description: form.tx?.disablePoll
+  //               ? 'Transaction cycle complete.'
+  //               : 'Please wait for subgraph to sync',
+  //           });
+  //         },
+  //         onPollStart() {
+  //           setStatus(StatusMsg.PollStart);
+  //           lifeCycleFns?.onPollStart?.();
+  //         },
+  //         onPollError(error) {
+  //           setStatus(StatusMsg.PollError);
+  //           const errMsg = handleErrorMessage({
+  //             error,
+  //             fallback: 'Could not decode poll error message',
+  //           });
+  //           setIsLoading(false);
+  //           lifeCycleFns?.onPollError?.(error);
+  //           errorToast({ title: StatusMsg.PollError, description: errMsg });
+  //         },
+  //         onPollSuccess(...args) {
+  //           setStatus(StatusMsg.PollSuccess);
+  //           setIsLoading(false);
+  //           successToast({
+  //             title: StatusMsg.PollSuccess,
+  //             description: 'Transaction cycle complete.',
+  //           });
+  //           lifeCycleFns?.onPollSuccess?.(...args);
+  //         },
+  //       },
+  //     });
+  //     if (executed === undefined) {
+  //       setStatus(StatusMsg.NoContext);
+  //       return;
+  //     }
+  //     return executed;
+  //   }
+  //   if (onSubmit) {
+  //     console.log('onSubmit.formValues: ', formValues);
+  //     return await onSubmit?.(formValues);
+  //   }
+  //   console.error('FormBuilder: onSubmit not implemented');
+  // };
+
   if ((!dao && !isLoadingDao) || (!members && !isLoadingMembers))
     return (
       <AlertContainer>
@@ -195,46 +302,50 @@ export const PendingMemberList = ({
       </AlertContainer>
     );
 
-  return (
-    <MemberContainer>
-      {!dao && isLoadingDao && (
-        <LoadingContainer>
-          <Loading size={120} />
-        </LoadingContainer>
-      )}
-      {dao && members && tableData && columns && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <DaoTable<PendingMembersTableType>
-            tableData={tableData}
-            columns={columns}
-            hasNextPaging={hasNextPage}
-            handleLoadMore={() => fetchNextPage()}
-            handleColumnSort={handleColumnSort}
-            sortableColumns={
-              isMd
-                ? ['loot', 'shares']
-                : ['createdAt', 'shares', 'loot', 'delegateShares']
-            }
-          />
-          <div style={{ marginTop: '20px' }}>
-            <Button 
-              justify="center"
-              onClick={(e) => sendTransaction(selectedMembersNFTIds)}>Submit</Button>
+    return (
+      <>
+        <MemberContainer>
+          {!dao && isLoadingDao && (
+            <LoadingContainer>
+              <Loading size={120} />
+            </LoadingContainer>
+          )}
+          {dao && members && tableData && columns && (
+            <div>
+              <DaoTable<PendingMembersTableType>
+                tableData={tableData}
+                columns={columns}
+                hasNextPaging={hasNextPage}
+                handleLoadMore={() => fetchNextPage()}
+                handleColumnSort={handleColumnSort}
+                sortableColumns={
+                  isMd
+                    ? ['loot', 'shares']
+                    : ['createdAt', 'shares', 'loot', 'delegateShares']
+                }
+              />
+            </div>
+          )}
+          {dao && isLoadingMembers && (
+            <LoadingContainer>
+              <Loading size={120} />
+            </LoadingContainer>
+          )}
+        </MemberContainer>
+        {dao && members && (
+          <div 
+          // style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}
+          >
+            <FormFooterModified
+              submitButtonFunction={() => sendTransaction(selectedMembersNFTIds)}
+              submitDisabled={false}
+              status={status}
+              txHash={txHash}
+            />
           </div>
-          {/* We probably need to setup <FormFooter> here in order to have status indicator of transactions */}
-        </div>
-      )}
-      {dao && isLoadingMembers && (
-        <LoadingContainer>
-          <Loading size={120} />
-        </LoadingContainer>
-      )}
-    </MemberContainer>
-  );
+        )}
+      </>
+    );
+    
+    
 };
