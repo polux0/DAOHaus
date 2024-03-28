@@ -1,7 +1,9 @@
 import {
   CryptoKeyAES,
   bufferToBase64,
+  base64ToBuffer,
   encryptKycData,
+  decryptData,
   importKey,
 } from '../utils/encryption';
 import { Kyc } from './kyc';
@@ -63,6 +65,29 @@ export class KycService {
       iv: await bufferToBase64(iv),
     };
   }
+  async decryptUserData(encryptedUser: Kyc, key: CryptoKeyAES): Promise<Kyc> {
+    // Decode the Base64 strings back into byte buffers
+    const ivBuffer = await base64ToBuffer(encryptedUser.iv);
+    const fullNameBuffer = await base64ToBuffer(encryptedUser.full_name);
+    const emailAddressBuffer = await base64ToBuffer(encryptedUser.email_address);
+    const phoneNumberBuffer = await base64ToBuffer(encryptedUser.phone_number);
+
+    const encryptedDataUint8 = new Uint8Array(ivBuffer);
+    // Decrypt the data using the AES decryption algorithm, the key, and the IV
+    const fullNameDecrypted = await decryptData(fullNameBuffer, encryptedDataUint8, key);
+    const emailAddressDecrypted = await decryptData(emailAddressBuffer, encryptedDataUint8, key);
+    const phoneNumberDecrypted = await decryptData(phoneNumberBuffer, encryptedDataUint8, key);
+    
+    console.log("data decrypted: " + fullNameDecrypted);
+    // Construct and return the decrypted user object
+    return {
+      ...encryptedUser, // You might want to exclude the encrypted fields
+      full_name: fullNameDecrypted,
+      email_address: emailAddressDecrypted,
+      phone_number: phoneNumberDecrypted,
+    };
+  }
+  
   async createUser(userData: Partial<Kyc>): Promise<Kyc> {
     try {
       const newUser: Kyc = {

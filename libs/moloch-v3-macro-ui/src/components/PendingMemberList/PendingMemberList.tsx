@@ -39,7 +39,7 @@ import { SupabaseKycRepository } from '@daohaus/moloch-v3-legos';
 import { KycService } from '@daohaus/moloch-v3-legos';
 import { useTxBuilder } from '@daohaus/tx-builder';
 import { FormFooterModified, StatusMsg } from '@daohaus/form-builder';
-
+import { base64ToBuffer, decryptData, importKey } from '@daohaus/moloch-v3-legos';
 
 type MembersTableType = MolochV3Members[number];
 
@@ -81,7 +81,7 @@ export const PendingMemberList = ({
     []
   );
   const { errorToast, defaultToast, successToast } = useToast();
-  const [ isLoading, setIsLoading ] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   // status of transaction
   const [status, setStatus] = useState<null | StatusMsg>(null);
   // tx hash of the transaction
@@ -92,27 +92,54 @@ export const PendingMemberList = ({
     const fetchPendingMembers = async () => {
       const kycService = new KycService(new SupabaseKycRepository());
       const pendingMembers = await kycService.getAllUsers();
-
+      console.log('pendingMembers: ', pendingMembers);
+  
       if (pendingMembers) {
         const members = pendingMembers.filter((member) => member !== undefined);
-        const membersTransformed = members.map((member) => ({
-          createdAt: new Date(member.created_at)
-            .toISOString()
-            .substring(
-              0,
-              new Date(member.created_at).toISOString().lastIndexOf(':')
-            ),
-          fullName: member.full_name,
-          emailAddress: member.email_address,
-          phoneNumber: member.phone_number,
-          id: member.nft_id, // Assuming nft_id is the appropriate id for your table
+  
+        // Decrypt and transform members
+        const membersTransformed = await Promise.all(members.map(async (member) => {
+
+          console.log('member: ', member);
+          // Convert the encrypted strings back to Uint8Array for decryption
+          const fullNameEncrypted = base64ToBuffer(member.full_name);
+          const emailAddressEncrypted = base64ToBuffer(member.email_address);
+          const phoneNumberEncrypted = base64ToBuffer(member.phone_number);
+          const memberIV = base64ToBuffer(member.iv);
+  
+          const keyString = process.env.NX_KYC_ENCRYPTION_KEY;
+          if (!keyString) throw new Error('NX_KYC_ENCRYPTION_KEY is not defined!');
+          const decryptionKey = await importKey(keyString);
+
+          // Assuming `decryptionKey` and `iv` are available and appropriate for decryption
+          const fullName = await decryptData(fullNameEncrypted, new Uint8Array(memberIV), decryptionKey);
+          const emailAddress = await decryptData(emailAddressEncrypted, new Uint8Array(memberIV), decryptionKey);
+          const phoneNumber = await decryptData(phoneNumberEncrypted, new Uint8Array(memberIV), decryptionKey);
+
+          console.log("Encrypted email address data:", emailAddressEncrypted); // Log encrypted data
+          const decryptedEmailAddress = await decryptData(emailAddressEncrypted, new Uint8Array(memberIV), decryptionKey);
+          console.log("Decrypted email address:", decryptedEmailAddress); // Log decrypted data
+  
+          return {
+            createdAt: new Date(member.created_at)
+              .toISOString()
+              .substring(
+                0,
+                new Date(member.created_at).toISOString().lastIndexOf(':')
+              ),
+            fullName,
+            emailAddress,
+            phoneNumber,
+            id: member.nft_id, // Assuming nft_id is the appropriate id for your table
+          };
         }));
+  
         setTableData(membersTransformed.length ? membersTransformed : []);
       }
     };
-
+  
     fetchPendingMembers().catch(console.error);
-  }, [members]);
+  }, [members]); // Ensure `decryptionKey` and `iv` are also included in the dependency array if they're dynamic
 
   useEffect(() => {
     console.log('Current selected row IDs:', selectedMembersNFTIds);
@@ -208,6 +235,8 @@ export const PendingMemberList = ({
             title: 'Cancel Success',
             description: 'Please wait for subgraph to sync',
           });
+          setStatus(StatusMsg.TxSuccess);
+          successToast({ title: StatusMsg.TxSuccess, description: "Success!"})
           console.log('do something on success');
         },
       }, // Use a comma here if you have more properties to add, otherwise it can be omitted.
@@ -302,50 +331,48 @@ export const PendingMemberList = ({
       </AlertContainer>
     );
 
-    return (
-      <>
-        <MemberContainer>
-          {!dao && isLoadingDao && (
-            <LoadingContainer>
-              <Loading size={120} />
-            </LoadingContainer>
-          )}
-          {dao && members && tableData && columns && (
-            <div>
-              <DaoTable<PendingMembersTableType>
-                tableData={tableData}
-                columns={columns}
-                hasNextPaging={hasNextPage}
-                handleLoadMore={() => fetchNextPage()}
-                handleColumnSort={handleColumnSort}
-                sortableColumns={
-                  isMd
-                    ? ['loot', 'shares']
-                    : ['createdAt', 'shares', 'loot', 'delegateShares']
-                }
-              />
-            </div>
-          )}
-          {dao && isLoadingMembers && (
-            <LoadingContainer>
-              <Loading size={120} />
-            </LoadingContainer>
-          )}
-        </MemberContainer>
-        {dao && members && (
-          <div 
-          // style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}
-          >
-            <FormFooterModified
-              submitButtonFunction={() => sendTransaction(selectedMembersNFTIds)}
-              submitDisabled={false}
-              status={status}
-              txHash={txHash}
+  return (
+    <>
+      <MemberContainer>
+        {!dao && isLoadingDao && (
+          <LoadingContainer>
+            <Loading size={120} />
+          </LoadingContainer>
+        )}
+        {dao && members && tableData && columns && (
+          <div>
+            <DaoTable<PendingMembersTableType>
+              tableData={tableData}
+              columns={columns}
+              hasNextPaging={hasNextPage}
+              handleLoadMore={() => fetchNextPage()}
+              handleColumnSort={handleColumnSort}
+              sortableColumns={
+                isMd
+                  ? ['loot', 'shares']
+                  : ['createdAt', 'shares', 'loot', 'delegateShares']
+              }
             />
           </div>
         )}
-      </>
-    );
-    
-    
+        {dao && isLoadingMembers && (
+          <LoadingContainer>
+            <Loading size={120} />
+          </LoadingContainer>
+        )}
+      </MemberContainer>
+      {dao && members && (
+        <div
+        // style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}
+        >
+          <FormFooterModified
+            submitButtonFunction={() => sendTransaction(selectedMembersNFTIds)}
+            submitDisabled={false}
+            status={status}
+            txHash={txHash}
+          />
+        </div>
+      )}
+    </>
+  );
 };

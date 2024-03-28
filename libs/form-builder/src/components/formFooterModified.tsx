@@ -29,7 +29,7 @@ export const FormFooterModified = ({
   status,
   txHash,
 }: {
-  submitButtonFunction? : any
+  submitButtonFunction?: any;
   submitDisabled?: boolean;
   submitButtonText?: string;
   status: StatusMsg | null;
@@ -46,9 +46,12 @@ export const FormFooterModified = ({
         </ExplorerLink>
       )}
       {status && <FormStatusDisplay status={status} />}
-      <Button fullWidth type="submit" 
-              disabled={submitDisabled}
-              onClick={submitButtonFunction}>
+      <Button
+        fullWidth
+        type="submit"
+        disabled={submitDisabled}
+        onClick={submitButtonFunction}
+      >
         {submitButtonText || 'Submit'}
       </Button>
     </FooterBox>
