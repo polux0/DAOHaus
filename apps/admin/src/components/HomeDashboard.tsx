@@ -59,6 +59,7 @@ export const HomeDashboard = () => {
           },
         });
         if (query.data?.daos && shouldUpdate) {
+          console.log('dao data: ' + query.data.daos);
           setDaoData(query.data.daos);
           setLoading(false);
         }

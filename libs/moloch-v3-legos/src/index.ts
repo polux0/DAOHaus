@@ -3,4 +3,6 @@ export * from './fields';
 export * from './form';
 export * from './tx';
 // modified for purposes of RobinHoodDAO
-export * from '../kyc'
+export * from '../kyc';
+// modified for purposes of RobinHoodDAO
+export * from '../utils'
